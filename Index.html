@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPO Fund Tracker</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        h2, h3 {
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        /* Grid for Banks */
+        .bank-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .bank-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .bank-name {
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .bank-input-group {
+            display: flex;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .bank-input-group span {
+            margin-right: 4px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .bank-card input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .bank-stats {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:active {
+            opacity: 0.9;
+        }
+
+        /* Active Logs Table */
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            width: auto;
+            margin-left: 8px;
+        }
+
+        /* Forecast Timeline */
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        .timeline-date {
+            font-weight: 500;
+            width: 75px;
+        }
+
+        .timeline-banks {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .timeline-bank-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .text-blocked { color: var(--warning); font-weight: 500; }
+        .text-avail { color: var(--success); font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📈 IPO Fund Tracker & Forecaster</h2>
+
+    <!-- Section 1: Bank Balances -->
+    <div class="card">
+        <h3>🏦 Account Balances (Actual Cash)</h3>
+        <div class="bank-grid" id="bank-container">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <!-- Section 2: Log New IPO -->
+    <div class="card">
+        <h3>✏️ Log New IPO Block</h3>
+        <form id="ipo-form">
+            <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="ipo-name" placeholder="e.g., Swiggy IPO" required>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <label>Bank Account</label>
+                    <select id="ipo-bank"></select>
+                </div>
+                <div>
+                    <label>Amount Blocked (₹)</label>
+                    <input type="number" id="ipo-amount" placeholder="15000" required>
+                </div>
+            </div>
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <label>Application Date</label>
+                    <input type="date" id="ipo-start" required>
+                </div>
+                <div>
+                    <label>Expected Unblock Date</label>
+                    <input type="date" id="ipo-end" required>
+                </div>
+            </div>
+            <button type="submit">Block Funds</button>
+        </form>
+    </div>
+
+    <!-- Section 3: Active Blocks -->
+    <div class="card">
+        <h3>🔒 Currently Blocked Applications</h3>
+        <div id="active-logs">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <!-- Section 4: 7-Day Forecast Timeline -->
+    <div class="card">
+        <h3>🔮 7-Day Liquidity Forecast</h3>
+        <div id="forecast-timeline">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initial core structures 
+    const banksList = ["IDFC First", "ICICI", "AXIS", "HDFC"];
+    
+    // Load data from localStorage or set defaults
+    let bankBalances = JSON.parse(localStorage.getItem('ipo_bank_balances')) || {
+        "IDFC First": 100000,
+        "ICICI": 100000,
+        "AXIS": 100000,
+        "HDFC": 100000
+    };
+    
+    let ipoLogs = JSON.parse(localStorage.getItem('ipo_logs')) || [];
+
+    // Save helpers
+    function saveData() {
+        localStorage.setItem('ipo_bank_balances', JSON.stringify(bankBalances));
+        localStorage.setItem('ipo_logs', JSON.stringify(ipoLogs));
+    }
+
+    // Set today's date defaults in form input
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('ipo-start').value = todayStr;
+    
+    // Auto-calculate +4 days default for unblock date
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 4);
+    document.getElementById('ipo-end').value = targetDate.toISOString().split('T')[0];
+
+    // Initialize layout
+    function init() {
+        renderBanks();
+        renderDropdown();
+        renderLogs();
+        renderForecast();
+    }
+
+    // Render Bank Inputs & current calculated blocked metrics
+    function renderBanks() {
+        const container = document.getElementById('bank-container');
+        container.innerHTML = '';
+        
+        banksList.forEach(bank => {
+            // Calculate total currently blocked right now for this bank
+            const activeBlocked = ipoLogs.reduce((sum, log) => {
+                if (log.bank === bank && todayStr >= log.start && todayStr <= log.end) {
+                    return sum + parseFloat(log.amount);
+                }
+                return sum;
+            }, 0);
+
+            const avail = bankBalances[bank] - activeBlocked;
+
+            const div = document.createElement('div');
+            div.className = 'bank-card';
+            div.innerHTML = `
+                <div class="bank-name">${bank}</div>
+                <div class="bank-input-group">
+                    <span>₹</span>
+                    <input type="number" value="${bankBalances[bank]}" data-bank="${bank}" onchange="updateBankBalance(this)">
+                </div>
+                <div class="bank-stats">
+                    <span class="text-blocked">Blocked: ₹${activeBlocked}</span><br>
+                    <span class="text-avail">Available: ₹${avail}</span>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function updateBankBalance(input) {
+        const bank = input.getAttribute('data-bank');
+        bankBalances[bank] = parseFloat(input.value) || 0;
+        saveData();
+        renderBanks();
+        renderForecast();
+    }
+
+    function renderDropdown() {
+        const select = document.getElementById('ipo-bank');
+        select.innerHTML = '';
+        banksList.forEach(bank => {
+            const opt = document.createElement('option');
+            opt.value = bank;
+            opt.textContent = bank;
+            select.appendChild(opt);
+        });
+    }
+
+    // Render IPO list items
+    function renderLogs() {
+        const container = document.getElementById('active-logs');
+        container.innerHTML = '';
+        
+        if (ipoLogs.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No active applications logged.</p>';
+
+      return;}ipoLogs.forEach((log, index) => {const div = document.createElement('div');div.className = 'log-item';div.innerHTML = <div> <strong>${log.name}</strong> <small style="color:var(--text-muted);">(${log.bank})</small><br> <span style="font-size:11px; color:var(--text-muted)">Unblocks: ${log.end}</span> </div> <div style="display:flex; align-items:center;"> <span class="text-blocked">₹${log.amount}</span> <button class="delete-btn" onclick="deleteLog(${index})">X</button> </div>;container.appendChild(div);});}// Add new application block logicdocument.getElementById('ipo-form').addEventListener('submit', function(e) {e.preventDefault();const name = document.getElementById('ipo-name').value;const bank = document.getElementById('ipo-bank').value;const amount = parseFloat(document.getElementById('ipo-amount').value);const start = document.getElementById('ipo-start').value;const end = document.getElementById('ipo-end').value;ipoLogs.push({ name, bank, amount, start, end });saveData();// Reset form name/amount field valuesdocument.getElementById('ipo-name').value = '';document.getElementById('ipo-amount').value = '';renderBanks();renderLogs();renderForecast();});window.deleteLog = function(index) {ipoLogs.splice(index, 1);saveData();renderBanks();renderLogs();renderForecast();}// Calculate and generate the 7-day timeline forecast matrixfunction renderForecast() {const container = document.getElementById('forecast-timeline');container.innerHTML = '';for (let i = 0; i < 7; i++) {const forecastDate = new Date();forecastDate.setDate(forecastDate.getDate() + i);const dateStr = forecastDate.toISOString().split('T')[0];// Format readable label: e.g. "Sep 15"const labelOptions = { month: 'short', day: 'numeric' };const readableDate = forecastDate.toLocaleDateString('en-IN', labelOptions);const dayDiv = document.createElement('div');dayDiv.className = 'timeline-item';let bankRowsHtml = '';banksList.forEach(bank => {// Determine what amount is blocked specifically on this forward calendar date stringconst blockedOnDay = ipoLogs.reduce((sum, log) => {if (log.bank === bank && dateStr >= log.start && dateStr <= log.end) {return sum + parseFloat(log.amount);}return sum;}, 0);const projectedAvail = bankBalances[bank] - blockedOnDay;bankRowsHtml += <div class="timeline-bank-row"> <span style="color:var(--text-muted); min-width:70px;">${bank}:</span> <span> <span class="text-avail">₹${projectedAvail}</span>  ${blockedOnDay > 0 ?(Locked ₹${blockedOnDay}): ''} </span> </div>;});dayDiv.innerHTML = <div class="timeline-date"><strong>${readableDate}</strong></div> <div class="timeline-banks">${bankRowsHtml}</div>;container.appendChild(dayDiv);}}// Boot up applicationinit();
