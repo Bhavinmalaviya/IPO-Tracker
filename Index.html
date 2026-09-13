@@ -1,3 +1,6 @@
+The code block in my previous message is already fully self-contained—it includes the complete structure, styles, and logic all in one place so you can copy it seamlessly.
+Here is the exact code again in a single block for you to easily click the "Copy" button and paste it straight into your GitHub index.html file:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -291,10 +294,12 @@
         const container = document.getElementById('bank-container');
         container.innerHTML = '';
         
+        const currentToday = new Date().toISOString().split('T')[0];
+        
         banksList.forEach(bank => {
             // Calculate total currently blocked right now for this bank
             const activeBlocked = ipoLogs.reduce((sum, log) => {
-                if (log.bank === bank && todayStr >= log.start && todayStr <= log.end) {
+                if (log.bank === bank && currentToday >= log.start && currentToday <= log.end) {
                     return sum + parseFloat(log.amount);
                 }
                 return sum;
@@ -344,6 +349,69 @@
         container.innerHTML = '';
         
         if (ipoLogs.length === 0) {
-            container.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">No active applications logged.</p>';
 
-      return;}ipoLogs.forEach((log, index) => {const div = document.createElement('div');div.className = 'log-item';div.innerHTML = <div> <strong>${log.name}</strong> <small style="color:var(--text-muted);">(${log.bank})</small><br> <span style="font-size:11px; color:var(--text-muted)">Unblocks: ${log.end}</span> </div> <div style="display:flex; align-items:center;"> <span class="text-blocked">₹${log.amount}</span> <button class="delete-btn" onclick="deleteLog(${index})">X</button> </div>;container.appendChild(div);});}// Add new application block logicdocument.getElementById('ipo-form').addEventListener('submit', function(e) {e.preventDefault();const name = document.getElementById('ipo-name').value;const bank = document.getElementById('ipo-bank').value;const amount = parseFloat(document.getElementById('ipo-amount').value);const start = document.getElementById('ipo-start').value;const end = document.getElementById('ipo-end').value;ipoLogs.push({ name, bank, amount, start, end });saveData();// Reset form name/amount field valuesdocument.getElementById('ipo-name').value = '';document.getElementById('ipo-amount').value = '';renderBanks();renderLogs();renderForecast();});window.deleteLog = function(index) {ipoLogs.splice(index, 1);saveData();renderBanks();renderLogs();renderForecast();}// Calculate and generate the 7-day timeline forecast matrixfunction renderForecast() {const container = document.getElementById('forecast-timeline');container.innerHTML = '';for (let i = 0; i < 7; i++) {const forecastDate = new Date();forecastDate.setDate(forecastDate.getDate() + i);const dateStr = forecastDate.toISOString().split('T')[0];// Format readable label: e.g. "Sep 15"const labelOptions = { month: 'short', day: 'numeric' };const readableDate = forecastDate.toLocaleDateString('en-IN', labelOptions);const dayDiv = document.createElement('div');dayDiv.className = 'timeline-item';let bankRowsHtml = '';banksList.forEach(bank => {// Determine what amount is blocked specifically on this forward calendar date stringconst blockedOnDay = ipoLogs.reduce((sum, log) => {if (log.bank === bank && dateStr >= log.start && dateStr <= log.end) {return sum + parseFloat(log.amount);}return sum;}, 0);const projectedAvail = bankBalances[bank] - blockedOnDay;bankRowsHtml += <div class="timeline-bank-row"> <span style="color:var(--text-muted); min-width:70px;">${bank}:</span> <span> <span class="text-avail">₹${projectedAvail}</span>  ${blockedOnDay > 0 ?(Locked ₹${blockedOnDay}): ''} </span> </div>;});dayDiv.innerHTML = <div class="timeline-date"><strong>${readableDate}</strong></div> <div class="timeline-banks">${bankRowsHtml}</div>;container.appendChild(dayDiv);}}// Boot up applicationinit();
+container.innerHTML = 'No active applications logged.';
+return;
+}
+ipoLogs.forEach((log, index) => {
+const div = document.createElement('div');
+div.className = 'log-item';
+div.innerHTML = <div> <strong>${log.name}</strong> <small style="color:var(--text-muted);">(${log.bank})</small><br> <span style="font-size:11px; color:var(--text-muted)">Unblocks: ${log.end}</span> </div> <div style="display:flex; align-items:center;"> <span class="text-blocked">₹${log.amount}</span> <button class="delete-btn" onclick="deleteLog(${index})">X</button> </div>;
+container.appendChild(div);
+});
+}
+// Add new application block logic
+document.getElementById('ipo-form').addEventListener('submit', function(e) {
+e.preventDefault();
+const name = document.getElementById('ipo-name').value;
+const bank = document.getElementById('ipo-bank').value;
+const amount = parseFloat(document.getElementById('ipo-amount').value);
+const start = document.getElementById('ipo-start').value;
+const end = document.getElementById('ipo-end').value;
+ipoLogs.push({ name, bank, amount, start, end });
+saveData();
+// Reset form name/amount field values
+document.getElementById('ipo-name').value = '';
+document.getElementById('ipo-amount').value = '';
+renderBanks();
+renderLogs();
+renderForecast();
+});
+window.deleteLog = function(index) {
+ipoLogs.splice(index, 1);
+saveData();
+renderBanks();
+renderLogs();
+renderForecast();
+}
+// Calculate and generate the 7-day timeline forecast matrix
+function renderForecast() {
+const container = document.getElementById('forecast-timeline');
+container.innerHTML = '';
+for (let i = 0; i < 7; i++) {
+const forecastDate = new Date();
+forecastDate.setDate(forecastDate.getDate() + i);
+const dateStr = forecastDate.toISOString().split('T')[0];
+// Format readable label: e.g. "Sep 15"
+const labelOptions = { month: 'short', day: 'numeric' };
+const readableDate = forecastDate.toLocaleDateString('en-IN', labelOptions);
+const dayDiv = document.createElement('div');
+dayDiv.className = 'timeline-item';
+let bankRowsHtml = '';
+banksList.forEach(bank => {
+// Determine what amount is blocked specifically on this forward calendar date string
+const blockedOnDay = ipoLogs.reduce((sum, log) => {
+if (log.bank === bank && dateStr >= log.start && dateStr <= log.end) {
+return sum + parseFloat(log.amount);
+}
+return sum;
+}, 0);
+const projectedAvail = bankBalances[bank] - blockedOnDay;
+bankRowsHtml += <div class="timeline-bank-row"> <span style="color:var(--text-muted); min-width:70px;">${bank}:</span> <span> <span class="text-avail">₹${projectedAvail}</span> ${blockedOnDay > 0 ?(Locked ₹${blockedOnDay}): ''} </span> </div>;
+});
+dayDiv.innerHTML = <div class="timeline-date"><strong>${readableDate}</strong></div> <div class="timeline-banks">${bankRowsHtml}</div>;
+container.appendChild(dayDiv);
+}
+}
+// Boot up application
+init();
